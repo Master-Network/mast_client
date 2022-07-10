@@ -1,0 +1,23 @@
+#cloud-config
+password: MoCZtedk
+chpasswd: { expire: False }
+ssh_pwauth: True
+hostname: server
+runcmd:
+ - [ ls, -l, / ]
+ - [ sh, -xc, "echo $(date) ': hello world!'" ]
+ - [ sh, -c, echo "=========hello world=========" ]
+ - ls -l /root
+ - mkdir /var/mydir
+ - touch mycron
+ - echo "* * * * *  " >> mycron
+ - crontab -u ubuntu mycron
+ - rm mycron
+ - crontab -l
+ - [ wget, "https://github.com/fatedier/frp/releases/download/v0.42.0/frp_0.42.0_linux_amd64.tar.gz", -O, /var/mydir/frp_0.42.0_linux_amd64.tar.gz ]
+ - mkdir /var/mydir/frp
+ - [ tar, -xvzf, /var/mydir/frp_0.42.0_linux_amd64.tar.gz, -C, /var/mydir/frp ]
+ - [ wget, "https://raw.githubusercontent.com/Masternetworks/public_masternetwork_vps/main/downloadfrpc.py", -O, /var/mydir/downloadfrpc.py ]
+ - [ wget, "https://raw.githubusercontent.com/Masternetworks/public_masternetwork_vps/main/init.sh", -O, /var/mydir/init.sh ]
+ - cd /var/mydir/ && sudo chmod +x  init.sh && ./init.sh kzCR1sUjmEpGoOo-I6Blwvdqb_1r0lUNcU1FkKjBl4i1m0ugwZUxnyWWUFgWfPo-K-lYzPuA0ER9zzcn_KtsVzPm1RMe 
+ 
