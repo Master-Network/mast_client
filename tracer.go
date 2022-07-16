@@ -61,8 +61,44 @@ func Newinstance(instancename string, instance_ram int32, instance_vcpus int8, i
 }
 func NewinstanceDocker(instancename string, instance_ram int32, instance_vcpus int8, instance_storage int16, instance_os string) {
 	fmt.Println("Yes ! New vm in creation !")
+	script.Exec("docker export $(docker create busybox) > "+instancename + ".tar").Stdout()
+	script.Exec("stat -c %s "+instancename + ".tar"+" | numfmt --to=iec").Stdout()
+	script.Exec("sudo dd if=/dev/zero of=myDockerFS.img bs=2M count=1").Stdout()
+	script.Exec("sudo mkfs.ext4 myDockerFS.img").Stdout()
+	script.Exec("sudo mkdir -p /mnt/dockerFsmountPoint").Stdout()
+	script.Exec("sudo mount myDockerFS.img /mnt/dockerFsmountPoint/").Stdout()
+	script.Exec("git clone https://github.com/hut/minirc").Stdout()
+	script.Exec("cd minirc").Stdout()
+	script.Exec("sudo ROOT=/mnt/dockerFsmountPoint ./setup.sh --force").Stdout()
+	script.Exec("sudo umount /mnt/dockerFsmountPoint").Stdout()
+	script.Exec("export kernel_path=$(pwd)/hello-vmlinux.bin").Stdout()
+	script.Exec("export kernel_path=$(pwd)/hello-vmlinux.bin").Stdout()
+	script.Exec(`curl --unix-socket /tmp/firecracker.socket -i \
+	-X PUT 'http://localhost/boot-source'   \
+	-H 'Accept: application/json'           \
+	-H 'Content-Type: application/json'     \
+	-d "{
+		  \"kernel_image_path\": \"${kernel_path}\",
+		  \"boot_args\": \"console=ttyS0 reboot=k panic=1 pci=off\"
+	 }"`).Stdout()
+	 script.Exec(`curl --unix-socket /tmp/firecracker.socket -i \
+	 -X PUT 'http://localhost/drives/rootfs' \
+	 -H 'Accept: application/json'           \
+	 -H 'Content-Type: application/json'     \
+	 -d "{
+		   \"drive_id\": \"rootfs\",
+		   \"path_on_host\": \"${rootfs_path}\",
+		   \"is_root_device\": true,
+		   \"is_read_only\": false
+	  }"`).Stdout()
+	 script.Exec(`curl --unix-socket /tmp/firecracker.socket -i \
+	 -X PUT 'http://localhost/actions'       \
+	 -H  'Accept: application/json'          \
+	 -H  'Content-Type: application/json'    \
+	 -d '{
+		 "action_type": "InstanceStart"
+	  }'`).Stdout()
 	
-	script.Exec("sudo virsh attach-disk --domain " + instancename + " /var/lib/libvirt/images/disk" + instancename + ".qcow2  --target vdb --persistent --config --live").Stdout()
 }
 func kill_instance(instanceid string) {
 	script.Exec("sudo virsh destroy  " + instanceid)
