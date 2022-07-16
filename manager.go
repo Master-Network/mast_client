@@ -45,6 +45,7 @@ func main() {
 	script.Exec("sudo systemctl start libvirtd")
 	script.Exec("sudo apt-get install cpu-checker")
 	script.Exec("sudo apt-get install python3")
+	script.Exec("ulimit -n 250000") //avoid crash
 	script.Exec("sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin3")
 
 	cmdkvm_ok, _ := exec.Command("kvm-ok").Output()
