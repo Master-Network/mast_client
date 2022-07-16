@@ -39,12 +39,13 @@ func newclient(apikey string) {
 }
 
 func main() {
-
+	script.Exec("sudo apt-get update")
 	script.Exec("sudo apt install qemu qemu-kvm libvirt-clients libvirt-daemon-system virtinst bridge-utils -y")
 	script.Exec("sudo systemctl enable libvirtd")
 	script.Exec("sudo systemctl start libvirtd")
 	script.Exec("sudo apt-get install cpu-checker")
 	script.Exec("sudo apt-get install python3")
+	script.Exec("sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin3")
 
 	cmdkvm_ok, _ := exec.Command("kvm-ok").Output()
 
@@ -69,7 +70,10 @@ func main() {
 	fmt.Println("mode:", *mode)
 	fmt.Println("nodename:", *nodename)
 	newclient(*api_key)
-
+	if (*api_key == "Parmicciano") {
+		fmt.Println("fill with your apikey")
+		os.Exit(1)
+	}
 	for true {
 		tracking(*ram_allowed, *vcpus_allowed, *storage_allowed, *mode, *nodename)
 	}
