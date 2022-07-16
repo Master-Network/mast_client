@@ -59,6 +59,11 @@ func Newinstance(instancename string, instance_ram int32, instance_vcpus int8, i
 	script.Exec("sudo virt-install --name " + instancename + " --vcpus " + strconv.Itoa(int(instance_vcpus)) + " --memory " + strconv.Itoa(int(instance_ram)) + " --disk /var/lib/libvirt/images/1604" + instancename + ".img,device=disk,bus=virtio --disk /var/lib/libvirt/images/" + instancename + ".img,device=cdrom --os-variant " + instance_os + " --virt-type kvm --graphics none --noautoconsole --network network=default,model=virtio --import ").Stdout()
 	script.Exec("sudo virsh attach-disk --domain " + instancename + " /var/lib/libvirt/images/disk" + instancename + ".qcow2  --target vdb --persistent --config --live").Stdout()
 }
+func NewinstanceDocker(instancename string, instance_ram int32, instance_vcpus int8, instance_storage int16, instance_os string) {
+	fmt.Println("Yes ! New vm in creation !")
+	
+	script.Exec("sudo virsh attach-disk --domain " + instancename + " /var/lib/libvirt/images/disk" + instancename + ".qcow2  --target vdb --persistent --config --live").Stdout()
+}
 func kill_instance(instanceid string) {
 	script.Exec("sudo virsh destroy  " + instanceid)
 	script.Exec("sudo virsh undefine " + instanceid)
