@@ -42,13 +42,13 @@ type VMJSONSTRUCT struct {
 	VM_MEMORY  int          `json:"VM_MEMORY"`
 }
 
-func Newinstance(instancename string, instance_ram int32, instance_vcpus int8, instance_storage int16, instance_os string) {
+func Newinstance(instancename string, instance_ram int32, instance_vcpus int8, instance_storage int16, instance_os string, VM_CLOUD_IMAGE_LINK string) {
 	fmt.Println("Yes ! New vm in creation !")
 	script.Exec("sudo apt install cloud-image-utils -y").Stdout()
 	script.Exec("sudo apt install virtinst -y").Stdout()
 	script.Exec("sudo apt install virt-manager -y").Stdout()
 	script.Exec("sudo apt install guestfish -y").Stdout()
-	script.Exec("wget https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img").Stdout()
+	script.Exec("wget "+VM_CLOUD_IMAGE_LINK).Stdout()
 	script.Exec("sudo rm wget-log").Stdout()
 	script.Exec("sudo cloud-localds /var/lib/libvirt/images/" + instancename + ".img " + instancename + ".txt").Stdout()
 	script.Exec("sudo rm " + instancename + ".txt").Stdout()
@@ -269,6 +269,7 @@ type NewVm struct {
 	VM_STORAGE int16
 	VM_OS      string
 	VM_STATE_WANTED int 
+	VM_CLOUD_IMAGE_LINK string
 }
 
 func receiveHandler(connection *websocket.Conn) {
@@ -311,7 +312,7 @@ func receiveHandler(connection *websocket.Conn) {
 				}
 
 				fmt.Println("done")
-				Newinstance(newvm[i].VM_NAME, newvm[i].VM_RAM, newvm[i].VM_VCPUS, newvm[i].VM_STORAGE, newvm[i].VM_OS)
+				Newinstance(newvm[i].VM_NAME, newvm[i].VM_RAM, newvm[i].VM_VCPUS, newvm[i].VM_STORAGE, newvm[i].VM_OS, newvm[i].VM_CLOUD_IMAGE_LINK)
 			}
 
 		}
